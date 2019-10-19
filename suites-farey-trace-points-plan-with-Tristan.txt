@@ -1,0 +1,61 @@
+
+-- Expériences à mener --
+ 
+0) Est ce que tu peux aussi afficher le discriminant d=t^2-4 pour pouvoir comprendre ces dessins en fonction des propriétés arithmétiques de d, aussi bien que de t, ce que tu me dis là et qui me surprend un peu c'est qu'on constates que t premier semble donner un motif particulièrement simple, or d'habitude le débat porte plutôt sur la décomposition en facteurs premiers de d (les gens on "rarement" considéré les formes quadratiques du point du vue des matrices)
+
+1) ensuite je pense que faut commencer avec les diagrammes pas trop grands, genre entre trace = 3 et trace = 31 c'est bien
+
+2) puis on peut filtrer, et regarder les motifs pour les nombres premiers (soit d premier soit p premier en fonction de ce qui semble le plus joili), et les prendre genre 4 par 4 (pour quand même bien les voir)
+
+3) aussi on peut fixer un nombre d square free, c'est à dire un produit de nombre premiers distincts (is sa fonction de Mobius est non nulle : ) et puis ensuite regarder les d.p^2 pour p=1,2,3,5,7,11,... les 6 premiers nombres premiers qui ne divisent pas d (donc avec 6 images), pour voir comment se complexifie l'image en multipliant par UN carré,
+
+4) et puis ensuite variante de 3) on prend d squarefree et on regarde les diagrammes pour d.p^2, dp^3, dp^4 pour p les deux pplus petits premiers ne divisant pas d par exemple p=2, 3 ou p=3,11
+
+5) je vais regarder si PARI a des bases de données appropriées, d'abord pour l'équivalence par conjugaison (mais ce que je t'ai dit est vrai : A et B conjugués et entrées toutes positives ou nulles ssi la factorisation en L et T diffère d'une permutation cyclique) et puis aussi regarder PARI pour la composition des formes quadratiques, mais il faut que je réfléchisse à une correspondance exacte entre matrice à conjugaison près et classes d'équivalence de formes quadratiques
+
+-- Observations --
+
+-- Propriétés --
+
+tr( AB ) = tr( BA ) --> ne dépend que de la classe de conjugaison
+
+Symétries :
+tr( A ) = tr( transpose(A) ) --> on échange L&T et on inverse sens de lecture du mot
+tr( A ) = tr( inverse(A) ) --> cela ne reste généralement pas dans le demi plan supérieur droit
+tr( JAJ ) = tr(A) où J est la matrice qui inverse x et y, qui est dans GL(2;Z) mais pas dans SL(2;Z).
+(Note : nous on ne s'intéresse qu'à la conjugaison dans SL(2;Z), c'est important pour avoir la structure de groupe).
+
+Relation de trace : 
+tr(AB)=tr(A)tr(B)-tr(AB^{-A})
+
+
+Soit long(A) la longueur combinatoire du mot cyclique en L et T associé.
+tr(A) = tr(B) =/=> et <=\=  long(A)=long(B)
+
+=/=> tr(L^4T)=tr(L^2T^2)=6 mais 5=long(L^4T)>long(L^2T^2)=4
+<=\= à longueur fixée, il y a plusieurs de traces dès que long>3 car tr(Lt^{n-1})<tr(LTLTL...)
+
+
+Fib_0 = 1
+Fib_1 = 1
+Fib_2 = 2
+Fib_3 = 3
+...
+
+Graca à la relation de trace on montre que 
+(LT)^n =
+F_n     F_{n+1}
+F_{n+1} F_{n+2}
+
+L(LT)^n =
+F_n     F_{n+1}
+F_{n+2} F_{n+3}
+
+donc tr(LTLTLTL...) croit en phi^n où phi est le nombre d'or tandis que tr(L^nT) croit linéairement.
+
+
+
+
+
+
+
