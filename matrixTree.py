@@ -194,4 +194,47 @@ def get_conjugaison_classes(t):
             to_return.append([n.get_coord()[0], n.get_coord()[1],i])
         reps.append(compress(rep))
             
-    return len(classes), np.array(to_return), reps 
+    return len(classes), np.array(to_return), reps
+
+
+def get_word_base(max_word_length, current_pair=('LR', 'RL')):
+    """ Returns the word base for the computation of enl. 
+    """
+
+    if len(current_pair[0]) > max_word_length:
+        return []
+
+    pair_left = current_pair[0]+'L', 'L'+current_pair[1]
+    pair_right = 'R'+current_pair[0], current_pair[0]+'R'
+
+    return [current_pair] + get_word_base(max_word_length, pair_left) +\
+                            get_word_base(max_word_length, pair_right)
+
+def occ(P,A):
+    """ Returns the number of times P appears at the begining of circular
+        shifts of A.
+    """
+    shifts = get_circular_shifts(A)
+    counter = 0
+    n = len(P)
+
+    if n > len(A):
+        return counter
+
+    for shift in shifts:
+        if shift[:n] == P:
+            counter += 1
+
+    return counter
+
+def scal_PQ(P,Q,A,B):
+    return 0.5*(occ(P,A)*occ(Q,B)+ occ(P,B)*occ(Q,A))
+
+def enl(A,B):
+    """ Returns the enl metric on the words A and B in the L/R alphabet.
+    """
+    word_base = get_word_base(max(len(A),len(B)))
+    return sum([scal_PQ(P,Q,A,B) for P,Q in word_base])
+
+
+
