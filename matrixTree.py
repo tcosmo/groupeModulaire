@@ -315,6 +315,10 @@ def is_inert(word):
 def is_reciprocal(word):
     return get_circular_rep(word) == get_circular_rep(Gauss_inverse(one_complent(word)))
 
+## Rademacher
+def Rademacher(word):
+    return word.count("L")-word.count("T")
+
 ## GENUS
 
 def is_trival_genus(word):
