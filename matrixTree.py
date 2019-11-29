@@ -160,7 +160,7 @@ def get_circular_rep(word):
     if word == '':
         return ''
     return min(get_circular_shifts(word)) ### J'AI LAISSE LE MIN CAR L<T ET C CE QUE JE VEUX
- 
+
 def compress(word):
     """ Returns compact representation of word.
        Example: LTTTT -> L T4
@@ -270,3 +270,25 @@ def enl(A,B):
 ## FORME QUADRATIQUE ASSOCIEE
  
 ## INVERSE DE GAUSS
+
+def Gauss_inverse(word):
+    return word[::-1]
+
+def is_ambiguous(word):
+    return get_circular_rep(word) == get_circular_rep(Gauss_inverse(word))
+
+def one_complent(word):
+    to_return = ""
+    for c in word:
+        if c == 'L':
+            to_return += 'T'
+        else:
+            to_return += 'L'
+
+    return to_return
+
+def is_inert(word):
+    return get_circular_rep(word) == get_circular_rep(one_complent(word))
+
+def is_reciprocal(word):
+    return get_circular_rep(word) == get_circular_rep(Gauss_inverse(one_complent(word)))
