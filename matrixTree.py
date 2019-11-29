@@ -218,9 +218,6 @@ def get_conjugaison_classes(t):
  
 def get_word_base(max_word_length, current_pair=('LT', 'TL')):
     """ Returns the word base for the computation of enl.
-   """
-    ### A rentrer dans le commentaire rouge juste au dessus :
-   
     # The set of pairs form a binary tree which we fill in à la Pascal
     # The root pair is ('LT','TL')
     # The pairs to the extreme left are ('Ln T', 'T Ln')
@@ -231,6 +228,7 @@ def get_word_base(max_word_length, current_pair=('LT', 'TL')):
      
     # Note the properties : 'G' ends with 'T' and 'D' ends with 'L' are preserved
     # which is why G[:-1] = G - 'T' and D[:-1] = D - 'L'
+    """
  
     if len(current_pair[0]) > max_word_length:
         return []
