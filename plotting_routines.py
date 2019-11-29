@@ -2,11 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matrixTree as mT
 
-def plot_matrix_per_trace(t, figsize=(10,10), save=True):
+def plot_matrix_per_trace(t, figsize=(10,10), right_column=False, save=True):
     """ Plot all matrices with trace t.
     """
     all_nodes = mT.get_nodes_with_trace(t)
-    all_coords = np.array([n.get_coord() for n in all_nodes])
+    all_coords = np.array([n.get_coord(right_column=right_column) for n in all_nodes])
     plt.figure(figsize=figsize)
     plt.scatter(all_coords[:,0], all_coords[:,1])
     plt.title("All matrices with trace t={}".format(t))
