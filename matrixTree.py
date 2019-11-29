@@ -235,8 +235,8 @@ def get_word_base(max_word_length, current_pair=('LT', 'TL')):
     if len(current_pair[0]) > max_word_length:
         return []
  
-    pair_left = current_pair[0]+'L', 'L'+current_pair[1]
-    pair_right = 'R'+current_pair[0], current_pair[0]+'R'
+    pair_left = current_pair[0][:-1]+'LT', current_pair[1]+'L'
+    pair_right = current_pair[0]+'T', current_pair[1][:-1]+'TL'
  
     return [current_pair] + get_word_base(max_word_length, pair_left) +\
                             get_word_base(max_word_length, pair_right)
