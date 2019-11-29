@@ -15,7 +15,7 @@ def plot_matrix_per_trace(t, figsize=(10,10), right_column=False, save=True):
     plt.show()
 
 def plot_matrix_per_trace_with_conj_class(t, right_column=False, inversibles=[], only_inverse=False, 
-                                            figsize=(10,10), save=True):
+                                            figsize=(10,10), save=True, special_cases=[]):
     """ Plots all matrices with traces t, differenting them by their 
         conjugaison classes. If inversible are given, their label is changed.
         If only_inverse is true, plots only inversible.
@@ -33,6 +33,10 @@ def plot_matrix_per_trace_with_conj_class(t, right_column=False, inversibles=[],
         if is_inversible:
             nb_i += 1
             style = "*"
+
+        for case,marker in special_cases:
+            if case(reps[class_nb]):
+                style=marker
 
         if (not only_inverse) or is_inversible:
             plt.scatter(conj_class[filter_,0],conj_class[filter_,1], marker=style, label="Class of {}".format(reps[class_nb]))
