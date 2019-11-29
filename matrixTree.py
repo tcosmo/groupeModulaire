@@ -293,7 +293,6 @@ def are_Fricke_equiv(word1,word2):
 ## FORME QUADRATIQUE ASSOCIEE
  
 ## INVERSE DE GAUSS
-
 def Gauss_inverse(word):
     return word[::-1]
 
@@ -315,3 +314,9 @@ def is_inert(word):
 
 def is_reciprocal(word):
     return get_circular_rep(word) == get_circular_rep(Gauss_inverse(one_complent(word)))
+
+## GENUS
+
+def is_trival_genus(word):
+    rep = get_circular_rep(word)
+    return (compress(rep).count('L') == 1) and (compress(rep).count('T') == 1)
