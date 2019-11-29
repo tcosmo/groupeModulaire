@@ -205,7 +205,7 @@ def get_word_base(max_word_length, current_pair=('LR', 'RL')):
         return []
 
     pair_left = current_pair[0]+'L', 'L'+current_pair[1]
-    pair_right = 'R'+current_pair[0], current_pair[0]+'R'
+    pair_right = 'R'+current_pair[0], current_pair[1]+'R'
 
     return [current_pair] + get_word_base(max_word_length, pair_left) +\
                             get_word_base(max_word_length, pair_right)
