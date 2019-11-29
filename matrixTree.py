@@ -26,8 +26,11 @@ class treeNode(object):
        
     def get_coord(self):
         """ Transforms the matrix in coordinates.
-       """
+        """
         return sum(self.matrix[0]), sum(self.matrix[1])
+
+    def get_right_column(self):
+        return self.matrix[:,1]
    
     def get_trace(self):
         return self.matrix.trace()
