@@ -29,7 +29,7 @@ def plot_matrix_per_trace_with_conj_class(t, right_column=False, inversibles=[],
         filter_ = conj_class[:,2] == class_nb
         style = "o"
 
-        is_inversible = (reps[class_nb] in inversibles)
+        is_inversible = (mT.compress(reps[class_nb]) in inversibles)
         if is_inversible:
             nb_i += 1
             style = "*"
