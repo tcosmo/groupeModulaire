@@ -213,7 +213,7 @@ def get_conjugaison_classes(t, right_column=False):
     for i,(rep,class_) in enumerate(sorted_class):
         for n in class_:
             to_return.append([n.get_coord(right_column=right_column)[0], n.get_coord(right_column=right_column)[1],i])
-        reps.append(compress(rep))
+        reps.append(rep)
            
     return len(classes), np.array(to_return), reps
  

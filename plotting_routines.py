@@ -39,7 +39,7 @@ def plot_matrix_per_trace_with_conj_class(t, right_column=False, inversibles=[],
                 style=marker
 
         if (not only_inverse) or is_inversible:
-            plt.scatter(conj_class[filter_,0],conj_class[filter_,1], marker=style, label="Class of {}".format(reps[class_nb]))
+            plt.scatter(conj_class[filter_,0],conj_class[filter_,1], marker=style, label="Class of {}".format(mT.compress(reps[class_nb])))
     
     s = ""
     if nb_i != 0:
