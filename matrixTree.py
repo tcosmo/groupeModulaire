@@ -34,7 +34,28 @@ class treeNode(object):
    
     def get_trace(self):
         return self.matrix.trace()
- 
+
+def get_quantum(word):
+    Lq = cypari.pari("[q,0;1,1/q]")
+    Tq = cypari.pari("[q,1;0,1/q]")
+
+    if len(word) == 0:
+        return cypari.pari("[1,0;0,1]")
+    result = Lq if word[0] == "L" else Tq
+
+    for c in word[1:]:
+        result *= (Lq if c == "L" else Tq)
+
+    return result 
+
+def get_Fricke(word):
+    M = get_quantum(word)
+    return M[0][0]+M[1][1]
+
+def are_Fricke_equiv(word1,word2):
+    return get_Fricke(word1) == get_Fricke(word2)
+
+
 ### J'AI ECHANGE L ORDRE DES FONCTIONS
  
 ## FAREY TREE AND ITS DESCENDANCE
