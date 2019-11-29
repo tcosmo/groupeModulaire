@@ -24,13 +24,13 @@ class treeNode(object):
         self.leftChild = leftChild
         self.rightChild = rightChild
        
-    def get_coord(self):
+    def get_coord(self, right_column=False):
         """ Transforms the matrix in coordinates.
         """
-        return sum(self.matrix[0]), sum(self.matrix[1])
+        if right_column:
+            return self.matrix[:,1]
 
-    def get_right_column(self):
-        return self.matrix[:,1]
+        return sum(self.matrix[0]), sum(self.matrix[1])
    
     def get_trace(self):
         return self.matrix.trace()
@@ -187,7 +187,7 @@ def compress(word):
  
     return compress[:-1]
  
-def get_conjugaison_classes(t):
+def get_conjugaison_classes(t, right_column=False):
     """ Return the conjugaison classes of trace t.
  
        Input:
@@ -212,7 +212,7 @@ def get_conjugaison_classes(t):
     reps = []
     for i,(rep,class_) in enumerate(sorted_class):
         for n in class_:
-            to_return.append([n.get_coord()[0], n.get_coord()[1],i])
+            to_return.append([n.get_coord(right_column=right_column)[0], n.get_coord(right_column=right_column)[1],i])
         reps.append(compress(rep))
            
     return len(classes), np.array(to_return), reps

@@ -14,14 +14,14 @@ def plot_matrix_per_trace(t, figsize=(10,10), save=True):
         plt.savefig("images/matrix_scatter_per_trace/matrices_for_t={}.png".format(t))
     plt.show()
 
-def plot_matrix_per_trace_with_conj_class(t, inversibles=[], only_inverse=False, 
+def plot_matrix_per_trace_with_conj_class(t, right_column=False, inversibles=[], only_inverse=False, 
                                             figsize=(10,10), save=True):
     """ Plots all matrices with traces t, differenting them by their 
         conjugaison classes. If inversible are given, their label is changed.
         If only_inverse is true, plots only inversible.
     """
 
-    nb_classes, conj_class, reps = mT.get_conjugaison_classes(t)
+    nb_classes, conj_class, reps = mT.get_conjugaison_classes(t,right_column)
     
     nb_i = 0
     plt.figure(figsize=figsize)
