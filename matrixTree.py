@@ -225,7 +225,7 @@ def get_word_base(max_word_length, current_pair=('LT', 'TL')):
     # The children of (G, D) are
     # to the left (P, Q) with P=G[:-1]+'LT' (on enlève 'T' on rajoute 'LT') and Q=D+'L'
     # to the right (R, S) with R=G+'T' and S=D[:-1]+'TL' (on enlève 'L' on rajoute 'TL')
-     
+    # COUCOU!!!
     # Note the properties : 'G' ends with 'T' and 'D' ends with 'L' are preserved
     # which is why G[:-1] = G - 'T' and D[:-1] = D - 'L'
     """
