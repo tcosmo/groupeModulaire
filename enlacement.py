@@ -1,5 +1,3 @@
-
-
 ## BIBLIS
  
 import numpy as np
@@ -8,19 +6,70 @@ import cypari
 
 import matrixTree as mT
 
-## Du code de Tristan
+## CALCUL DE L'ENLACEMENT
 
-def get_addresses(root, predicate):
-    all_nodes = mT.get_nodes_with_property(root, predicate)
-    return [n.address for n in all_nodes]
+# linking_patterns
+# occ
+# scal_PQ
+# enl
+ 
+def linking_patterns(max_word_length, current_pair=('LT', 'TL')):
+    """ Returns the word base for the computation of enl.
+    
+    # The set of pairs form a binary tree which we fill in à la Pascal
+    
+    # The root pair is ('LT','TL')
+    # The pairs to the extreme left are ('Ln T', 'T Ln')
+    # The pairs on the extreme right are ('L Tn', 'Tn L')
 
-# matrice d'enlacement 
-def get_enl_matrix(root, size):
-    addresses = get_addresses(root, lambda n: len(n.address) == size)
+    # The children of (G, D) are
+    # to the left (P, Q) with P=G[:-1]+'LT' (on enlève 'T' on rajoute 'LT') and Q=D+'L'
+    # to the right (R, S) with R=G+'T' and S=D[:-1]+'TL' (on enlève 'L' on rajoute 'TL')
+    
+    # Note the properties : 'G' ends with 'T' and 'D' ends with 'L' are preserved
+    # which is why G[:-1] = G - 'T' and D[:-1] = D - 'L'
+    """
+ 
+    if len(current_pair[0]) > max_word_length:
+        return []
+ 
+    pair_left = current_pair[0][:-1]+'LT', current_pair[1]+'L'
+    pair_right = current_pair[0]+'T', current_pair[1][:-1]+'TL'
+ 
+    return [current_pair] + linking_patterns(max_word_length, pair_left) +\
+                            linking_patterns(max_word_length, pair_right)
+ 
+def occ(P,A):
+    # Returns the number of times P appears at the begining of circular shifts of A.
+    shifts = mT.list_of_circular_shifts(A)
+    counter = 0
+    n = len(P)
+ 
+    if n > len(A):
+        return counter
+ 
+    for shift in shifts:
+        if shift[:n] == P:
+            counter += 1
+ 
+    return counter
+ 
+def scal_PQ(P,Q,A,B):
+    return (occ(P,A)*occ(Q,B)+ occ(P,B)*occ(Q,A))
+ 
+def enl(A,B):
+    # Returns the enl metric on the words A and B in the L/T alphabet.
+    patterns = linking_patterns(max(len(A),len(B)))
+    return sum([scal_PQ(P,Q,A,B) for P,Q in patterns])
+
+ 
+def linking_matrix(root, size):
+    # renvoie matrice d'enlacement entre classes de long combinatoire size
+    addresses = mT.list_of_addresses(root, lambda n: len(n.address) == size)
     conj_class = {}
     
     for a in addresses:
-        rep = mT.get_circular_rep(a)
+        rep = mT.circular_min_rpz(a)
         conj_class[rep] = True
         
     print(len(addresses), len(conj_class))
@@ -31,39 +80,18 @@ def get_enl_matrix(root, size):
     for rep1 in conj_class:
         enl_mat.append([])
         for rep2 in conj_class:
-            enl_mat[-1].append(mT.enl(rep1,rep2))
+            enl_mat[-1].append(enl(rep1,rep2))
             
     enl_mat = np.array(enl_mat)
     return all_reps, enl_mat
 
-all_reps, enl_mat = get_enl_matrix(root,7)
+## L'algo de Pierre pour le crossing number
 
-# un test
-for i,rep1 in enumerate(all_reps):
-    for j,rep2 in enumerate(all_reps):
-        if rep1.count('L') >= 1 and rep2.count('L') >= 1 and rep1.count('T') >= 1 and rep2.count('T') >= 1:
-            print("enl({},{})={}".format(rep1,rep2,enl_mat[i,j]))
-
-## L'algo de Pierre
-
-"""
-Orbits are coded by sequences of 0's and 1's (instead of L and T).
-Here are three orbits or period 5, 5 and 7.
-"""
-gamma1 = [0,0,1,0,1]
-gamma2 = [0,1,0,1,1]
-gamma3 = [0,0,1,0,1,0,1]
-reste_euclid_div = 10%3
-
-"""
-The function ordrelex implements the lexicographic order on infinite words: it says 
-0 if the n1-th shift of l1^infty is smaller than the n2-th shift of l2^infty, 
-1 if it is larger, and
-2 if the two words coincide 
-(this can be determined only by looking length(l1)+length(l2) letters since u^infty = v^infty iff uv = vu).
-"""
-
-def ordrelex(l1, l2, n1, n2):
+def orderlex(l1, l2, n1, n2):
+    """ lexicographic order on infinite words, returns : 
+    0 if the n1-th shift of l1^infty is smaller than the n2-th shift of l2^infty, 1 if it is larger, and 2 if the two words coincide 
+    (this can be determined by looking only length(l1)+length(l2) letters since u^infty = v^infty iff uv = vu).
+    """
     i = 0
     while( (l1[(i+n1)%len(l1)] == l2[(i+n2)%len(l2)]) & (i <= (len(l1)+len(l2))) ):
         i = i+1;
@@ -75,37 +103,26 @@ def ordrelex(l1, l2, n1, n2):
         else:
             return 2
 
-
-# We check that gamma1 and gamma1 coincice, while gamma1 is smaller than gamma2.
-print(ordrelex(gamma1,gamma1,0,0))
-print(ordrelex(gamma1,gamma2,0,0))
-print(ordrelex(gamma2,gamma1,0,0))
-
-"""
-The function cro computes the crossing number of l1 and l2 on the template.
-It relies on the observation that a crossing occurs 
-when an arc coming from the left ear (the 0) goes to the right 
-of an arc coming from the right ear (the 1).
-"""
-
-def cro(l1, l2):
+def cross(l1, l2):
+    """ The function cross computes the crossing number of l1 and l2 on the template.
+    It relies on the observation that a crossing occurs 
+    when an arc coming from the left ear (the 0) goes to the right 
+    of an arc coming from the right ear (the 1).
+    """
     c = 0
     for i in range(len(l1)):
         for j in range(len(l2)):
-            if ( (l1[i] == 0) & (l2[j] == 1) & (ordrelex(l1,l2,i+1,j+1) == 1) ):
+            if ( (l1[i] == 0) & (l2[j] == 1) & (orderlex(l1,l2,i+1,j+1) == 1) ):
                 c = c+1
-            if ( (l1[i] == 1) & (l2[j] == 0) & (ordrelex(l1,l2,i+1,j+1) == 0) ):
+            if ( (l1[i] == 1) & (l2[j] == 0) & (orderlex(l1,l2,i+1,j+1) == 0) ):
                 c = c+1
     return c
 
 
 ## On teste l'égalité entre ma formule pour enl et l'algo de Pierre
 
-""" 
-We translate our L and T words into lists of 0 and 1
-"""
-
 def bin_list_from_word(word):
+    # We translate our L and T words into lists of 0 and 1
     liste = []
     for letter in word:
         if letter == 'L':
@@ -118,14 +135,12 @@ def bin_list_from_word(word):
 
 bin_list_from_word('LLTLT')
 
-# the folowing should give 4 and 8
-mT.enl('LLTLT','LTLTT'), cro(bin_list_from_word('LLTLT'), bin_list_from_word('LTLTT'))
+# We check that cross = enl on all_reps, it is always true : youpii !!
 
-# we check that cro = 2*enl on all_reps, it is always true : youpii !!
-
+"""
 for i,rep1 in enumerate(all_reps):
     for j,rep2 in enumerate(all_reps):
-        cross, enlac = cro(bin_list_from_word(rep1),bin_list_from_word(rep2)), 2*mT.enl(rep1,rep2)
+        cross, enlac = cross(bin_list_from_word(rep1),bin_list_from_word(rep2)), 2*mT.enl(rep1,rep2)
         print(rep1,rep2,cross, int(enlac), enlac == cross)
 
-
+"""

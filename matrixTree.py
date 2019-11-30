@@ -32,8 +32,6 @@ class treeNode(object):
    
     def get_trace(self):
         return self.matrix.trace()
-
-### J'AI ECHANGE L ORDRE DES FONCTIONS
  
 ## FAREY TREE AND ITS DESCENDANCE
  
@@ -41,12 +39,11 @@ class treeNode(object):
 # tree_size(node) : on peut calculer sa taille
  
 # list_of_descendants(node) : on peut lister la descendance
-# get_noes_with_property(node,prop) : on peut lister la descendance filtrée selon un critere
- 
-# get_node_with_trace(t) : liste des nodes de trace t
-# get_trace_property(t) : renvoie une fonction node --> bool (testant si trace == t)
- 
-# get_max_height_criterion(max_height) : renvoie fonction
+# list_of_nodes_with_prop(node,prop) : on peut lister la descendance filtrée selon un critere
+# list_of_nodes_with_trace_equal(t) : liste des nodes de trace t
+
+# get_prop_trace_equal(t) : renvoie une fonction node --> bool (testant si trace == t) 
+# get_prop_max_height(max_height) : renvoie fonction
  
 def construct_tree(include_node_criterion,
                    left_coord=(1,0), right_coord=(0,1),
@@ -80,42 +77,44 @@ def construct_tree(include_node_criterion,
     return node
  
 def tree_size(node):
-    """ Returns the number of nodes in the tree of a given root.
-   """
+    # Returns the number of nodes in the tree of a given root.
     if node is None:
         return 0
     return 1 + tree_size(node.leftChild) + tree_size(node.rightChild)
  
-def list_of_descendants(node):
-    """ Returns the list of descendants of a node including this node.
-   """
-    return get_nodes_with_property(node, lambda x: True)
- 
-def get_nodes_with_property(root, prop):
+def list_of_descendants(node): 
+    #Returns the list of descendants of a node including this node.
+    return list_of_nodes_with_prop(node, lambda x: True)
+
+def list_of_addresses(root, predicate):
+    all_nodes = list_of_nodes_with_prop(root, predicate)
+    return [n.address for n in all_nodes]
+
+def list_of_nodes_with_prop(root, prop):
     """ Returns all nodes of the tree having the given property.
        Args:
        
        root: root of the tree (type treeNode)
        prop: predicate treeNode -> bool
-   """
+    """
    
     if root is None:
         return []
  
-    l=prop(root)*[root] ### ICI JE ME SUIS PERMIS UNE MODIF DE CODE
+    l=prop(root)*[root]
    
-    return l + get_nodes_with_property(root.leftChild, prop) + \
-               get_nodes_with_property(root.rightChild, prop)
+    return l + list_of_nodes_with_prop(root.leftChild, prop) + \
+               list_of_nodes_with_prop(root.rightChild, prop)
  
-def get_trace_property(trace):
+def get_prop_trace_equal(trace):
     """ Returns a predicate treeNode -> bool,
        choosing nodes which have a given trace.
    """
-    def trace_property(node):
+    def trace_equal(node):
         return node.get_trace() == trace
-    return trace_property
+    return trace_equal
  
-def get_nodes_with_trace(t):
+def list_of_nodes_with_trace_equal(t):
     """ Construct the tree from root to find those nodes.
        We skim the branches that are too large in trace.
    """
@@ -123,20 +122,25 @@ def get_nodes_with_trace(t):
     root = construct_tree(criterion)
     all_nodes = list_of_descendants(root)
  
-    return list(filter(get_trace_property(t),all_nodes))
+    return list(filter(get_prop_trace_equal(t),all_nodes))
  
-def get_max_height_criterion(max_height):
-    """ Return a stopping criterion for a given height.
-   """
-    def max_height_criterion(node, height):
+def get_prop_max_height(max_height):
+    # Return a stopping criterion for a given height.
+    def prop_max_height(node, height):
         return height <= max_height
-    return max_height_criterion
+    return prop_max_height
  
 ## REPRESENTATION DES MATRICES ET DES CLASSES DE CONJUGAISON
- 
-def get_matrix_of_address(address):
-    """ Returns the matrix corresponding to a given 'L'/'T' address.
-   """
+
+# matrix_of_address
+# list_of_circular_shifts
+# circular_min_rpz
+# compress
+# conj_class_with_trace
+
+
+def matrix_of_address(address):
+    # Returns the matrix corresponding to a given 'L'/'T' address.
     T = np.array([[1,1],[0,1]])
     L = np.array([[1,0],[1,1]])
     prod = np.array([[1,0],[0,1]])
@@ -147,20 +151,19 @@ def get_matrix_of_address(address):
             prod = prod.dot(L)
     return prod
  
-def get_circular_shifts(word):
-    """ Returns all the circular shifts of the given input word.
-   """
+def list_of_circular_shifts(word):
+    # Returns all the circular shifts of the given input word.
     n = len(word)
     return ["".join([word[i - j] for i in range(n)]) for j in range(n)]
  
-def get_circular_rep(word):
+def circular_min_rpz(word):
     """ Returns the canonical representant of the set of circular shifts
        of a word. We choose: min (lex order) of the circular permutations
        of 'word'.
    """
     if word == '':
         return ''
-    return min(get_circular_shifts(word)) ### J'AI LAISSE LE MIN CAR L<T ET C CE QUE JE VEUX
+    return min(list_of_circular_shifts(word)) ### J'AI LAISSE LE MIN CAR L<T ET C CE QUE JE VEUX
 
 def compress(word):
     """ Returns compact representation of word.
@@ -185,7 +188,7 @@ def compress(word):
  
     return compress[:-1]
  
-def get_conjugaison_classes(t, right_column=False):
+def conj_class_with_trace(t, right_column=False):
     """ Return the conjugaison classes of trace t.
  
        Input:
@@ -193,13 +196,13 @@ def get_conjugaison_classes(t, right_column=False):
  
        Output:
            1. The number of classes
-           2. np.array [coord[0], cood[1], class_number]
+           2. np.array [coord[0], coord[1], class_number]
            3. Array of representant of each classes
    """
-    nodes = get_nodes_with_trace(t)
+    nodes = list_of_nodes_with_trace_equal(t)
     classes = {}
     for n in nodes:
-        rep = get_circular_rep(n.address)
+        rep = circular_min_rpz(n.address)
         if not rep in classes:
             classes[rep] = []
         classes[rep].append(n)
@@ -215,87 +218,13 @@ def get_conjugaison_classes(t, right_column=False):
            
     return len(classes), np.array(to_return), reps
  
-## CALCUL DE L'ENLACEMENT
- 
-def get_word_base(max_word_length, current_pair=('LT', 'TL')):
-    """ Returns the word base for the computation of enl.
-    # The set of pairs form a binary tree which we fill in à la Pascal
-    # The root pair is ('LT','TL')
-    # The pairs to the extreme left are ('Ln T', 'T Ln')
-    # The pairs on the extreme right are ('L Tn', 'Tn L')
-    # The children of (G, D) are
-    # to the left (P, Q) with P=G[:-1]+'LT' (on enlève 'T' on rajoute 'LT') and Q=D+'L'
-    # to the right (R, S) with R=G+'T' and S=D[:-1]+'TL' (on enlève 'L' on rajoute 'TL')
-    # COUCOU!!!
-    # Note the properties : 'G' ends with 'T' and 'D' ends with 'L' are preserved
-    # which is why G[:-1] = G - 'T' and D[:-1] = D - 'L'
-    """
- 
-    if len(current_pair[0]) > max_word_length:
-        return []
- 
-    pair_left = current_pair[0][:-1]+'LT', current_pair[1]+'L'
-    pair_right = current_pair[0]+'T', current_pair[1][:-1]+'TL'
- 
-    return [current_pair] + get_word_base(max_word_length, pair_left) +\
-                            get_word_base(max_word_length, pair_right)
- 
-def occ(P,A):
-    """ Returns the number of times P appears at the begining of circular
-       shifts of A.
-   """
-    shifts = get_circular_shifts(A)
-    counter = 0
-    n = len(P)
- 
-    if n > len(A):
-        return counter
- 
-    for shift in shifts:
-        if shift[:n] == P:
-            counter += 1
- 
-    return counter
- 
-def scal_PQ(P,Q,A,B):
-    return 0.5*(occ(P,A)*occ(Q,B)+ occ(P,B)*occ(Q,A))
- 
-def enl(A,B):
-    """ Returns the enl metric on the words A and B in the L/T alphabet.
-   """
-    word_base = get_word_base(max(len(A),len(B)))
-    return sum([scal_PQ(P,Q,A,B) for P,Q in word_base])
- 
-## CALCUL DE LA TRACE
-def get_quantum(word):
-    Lq = cypari.pari("[q,0;1,1/q]")
-    Tq = cypari.pari("[q,1;0,1/q]")
-
-    if len(word) == 0:
-        return cypari.pari("[1,0;0,1]")
-    result = Lq if word[0] == "L" else Tq
-
-    for c in word[1:]:
-        result *= (Lq if c == "L" else Tq)
-
-    return result 
-
-def get_Fricke(word):
-    M = get_quantum(word)
-    return M[0][0]+M[1][1]
-
-def are_Fricke_equiv(word1,word2):
-    return get_Fricke(word1) == get_Fricke(word2) 
-
-
-## FORME QUADRATIQUE ASSOCIEE
  
 ## INVERSE DE GAUSS
 def Gauss_inverse(word):
     return word[::-1]
 
 def is_ambiguous(word):
-    return get_circular_rep(word) == get_circular_rep(Gauss_inverse(word))
+    return circular_min_rpz(word) == circular_min_rpz(Gauss_inverse(word))
 
 def one_complent(word):
     to_return = ""
@@ -308,10 +237,10 @@ def one_complent(word):
     return to_return
 
 def is_inert(word):
-    return get_circular_rep(word) == get_circular_rep(one_complent(word))
+    return circular_min_rpz(word) == circular_min_rpz(one_complent(word))
 
 def is_reciprocal(word):
-    return get_circular_rep(word) == get_circular_rep(Gauss_inverse(one_complent(word)))
+    return circular_min_rpz(word) == circular_min_rpz(Gauss_inverse(one_complent(word)))
 
 ## Rademacher
 def Rademacher(word):
@@ -319,6 +248,30 @@ def Rademacher(word):
 
 ## GENUS
 
-def is_trival_genus(word):
-    rep = get_circular_rep(word)
+def is_principal_genus(word):
+    rep = circular_min_rpz(word)
     return (compress(rep).count('L') == 1) and (compress(rep).count('T') == 1)
+
+## CALCUL DE LA TRACE
+def quantize(word):
+    Lq = cypari.pari("[q,0;1,1/q]")
+    Tq = cypari.pari("[q,1;0,1/q]")
+
+    if len(word) == 0:
+        return cypari.pari("[1,0;0,1]")
+    result = Lq if word[0] == "L" else Tq
+
+    for c in word[1:]:
+        result *= (Lq if c == "L" else Tq)
+
+    return result 
+
+def Fricke(word):
+    M = quantize(word)
+    return M[0][0]+M[1][1]
+
+def are_Fricke_equiv(word1,word2):
+    return Fricke(word1) == Fricke(word2) 
+
+
+## FORME QUADRATIQUE ASSOCIEE
