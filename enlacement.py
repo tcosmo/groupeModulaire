@@ -75,12 +75,14 @@ def linking_matrix(root, size):
     print(len(addresses), len(conj_class))
     
     all_reps = sorted(conj_class.keys())
+    #all_reps = conj_class.keys()
+    
     
     enl_mat = []
     for rep1 in conj_class:
         enl_mat.append([])
         for rep2 in conj_class:
-            enl_mat[-1].append(enl(rep1,rep2))
+            enl_mat[-1].append(cross_word(rep1,rep2))
             
     enl_mat = np.array(enl_mat)
     return all_reps, enl_mat
@@ -94,7 +96,7 @@ def orderlex(l1, l2, n1, n2):
     """
     i = 0
     while( (l1[(i+n1)%len(l1)] == l2[(i+n2)%len(l2)]) & (i <= (len(l1)+len(l2))) ):
-        i = i+1;
+        i = i+1
     if l1[(i+n1)%len(l1)] < l2[(i+n2)%len(l2)]:
         return 0
     else:
@@ -132,6 +134,9 @@ def bin_list_from_word(word):
         else :
             raise ValueError("Not an L & T word")
     return liste
+
+def cross_word(w1,w2):
+	return cross(bin_list_from_word(w1), bin_list_from_word(w2))
 
 bin_list_from_word('LLTLT')
 

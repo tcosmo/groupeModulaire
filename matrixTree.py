@@ -41,6 +41,8 @@ class treeNode(object):
 # list_of_descendants(node) : on peut lister la descendance
 # list_of_nodes_with_prop(node,prop) : on peut lister la descendance filtrée selon un critere
 # list_of_nodes_with_trace_equal(t) : liste des nodes de trace t
+# list_of_descendants(node)
+# list_of_adresses(node)
 
 # get_prop_trace_equal(t) : renvoie une fonction node --> bool (testant si trace == t) 
 # get_prop_max_height(max_height) : renvoie fonction
@@ -86,8 +88,8 @@ def list_of_descendants(node):
     #Returns the list of descendants of a node including this node.
     return list_of_nodes_with_prop(node, lambda x: True)
 
-def list_of_addresses(root, predicate):
-    all_nodes = list_of_nodes_with_prop(root, predicate)
+def list_of_addresses(root, prop):
+    all_nodes = list_of_nodes_with_prop(root, prop)
     return [n.address for n in all_nodes]
 
 def list_of_nodes_with_prop(root, prop):
@@ -220,6 +222,12 @@ def conj_class_with_trace(t, right_column=False):
  
  
 ## INVERSE DE GAUSS
+
+def is_invertible(word): # peut être mieux is_invertible(node) ?
+    A = matrix_of_address(word)
+    a,b,c,d = A[0,0], A[0,1], A[1,0], A[1,1]
+    return np.gcd.reduce(c,d-a,b)==1
+
 def Gauss_inverse(word):
     return word[::-1]
 
@@ -275,3 +283,40 @@ def are_Fricke_equiv(word1,word2):
 
 
 ## FORME QUADRATIQUE ASSOCIEE
+
+## FRACTIONS CONTIUES
+
+
+def continued_fraction(x,long, expansion=[], A = np.matrix([[1,0],[0,1]]), colonnes=[] ):
+    """ 
+    entrer : un réel x et un entier long 
+    retourne :
+    expansion : 
+    colonnes : liste des 'long' premières approximations par fractions continuées partielles de 'x'
+    """
+    
+    if long <= 0:
+        return(expansion, colonnes, A)
+    
+    n=int(np.floor(x))
+    expansion.append(n)
+    
+    A=A*np.matrix([[n,1],[1,0]])
+    colonnes.append("{} /{}".format(int(A[0,1]), int(A[1,1]) ))
+    
+    return continued_fraction(1/(x-n),long-1, expansion, A, colonnes)
+
+
+def continued_fraction_hj(x,long, expansion=[], A = np.matrix([[1,0],[0,1]]), colonnes=[] ):
+    """ Idem mais pour les fractions continues d'Hirzebruch Youg
+    """
+    if long <= 0:
+        return expansion#, colonnes, A
+    
+    n=int(np.ceil(x))
+    expansion.append(n)
+    
+    A=A*np.matrix([[n,-1],[1,0]])
+    colonnes.append("{} /{}".format(int(A[0,1]), int(A[1,1]) ))
+    
+    return continued_fraction_hj(1/(n-x),long-1, expansion, A, colonnes)
