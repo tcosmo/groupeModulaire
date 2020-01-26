@@ -260,7 +260,8 @@ def is_principal_genus(word):
     rep = circular_min_rpz(word)
     return (compress(rep).count('L') == 1) and (compress(rep).count('T') == 1)
 
-## CALCUL DE LA TRACE
+## CALCUL DE LA TRACE QUANTIQUE
+
 def quantize(word):
     Lq = cypari.pari("[q,0;1,1/q]")
     Tq = cypari.pari("[q,1;0,1/q]")
@@ -279,10 +280,51 @@ def Fricke(word):
     return M[0][0]+M[1][1]
 
 def are_Fricke_equiv(word1,word2):
-    return Fricke(word1) == Fricke(word2) 
+    return Fricke(word1) == Fricke(word2)    
+
+## INVERSE MATRICIEL
+
+def matrix_sl_inverse(mat):
+    a,b = mat[0][0],mat[1][0]
+    c,d = mat[0][1],mat[1][1]
+    return np.array([[d,-c],[-b,a]])
 
 
-## FORME QUADRATIQUE ASSOCIEE
+## FORME QUADRATIQUE ET MATRICE
+
+def quadratic_form_of_matrix(matrix):
+    if matrix.trace()<0:
+        matrix=-matrix
+    l =  matrix[0][1] 
+    m =  matrix[1][1]-matrix[0][0]
+    u = -matrix[1][0]
+    return (l,m,u)
+
+def matrix_of_quadratic_form(quad):
+    l, m, u = quad(0), quad(1), quad(2)
+    t = np.sqrt(m**2-4*l*u+4)
+    a, d = (t-m)/2, (t+m)/2
+    b, c = -u, l
+    mat = np.array([[a,c],[b,d]])
+    return mat
+
+## DISCRIMINANT ET PRODUIT SCALAIRE DE KILLING DE DEUX FORMES QUADRATIQUES ET RESULTANT
+
+def discriminant(mat):
+    return (mat.trace()**2-4)
+
+def killing_form(matrix_A,matrix_B):
+    #m_A = matrix_of_address(word_a) 
+    #m_B = matrix_of_address(word_b)
+    scal = 2*(matrix_A * matrix_B).trace()-matrix_A.trace()*matrix_B.trace()
+    return scal
+
+def resultant(mat_A,mat_B):
+    la,ma,ua = quadratic_form_of_matrix(mat_A)
+    lb,mb,ub = quadratic_form_of_matrix(mat_B)
+    res = (la*ua-lb*ub)**2-ma*mb*(la*ua+lb*ub)+(la*mb**2*ua)+(lb*ma**2*ub)
+    return res
+
 
 ## FRACTIONS CONTIUES
 
@@ -320,3 +362,5 @@ def continued_fraction_hj(x,long, expansion=[], A = np.matrix([[1,0],[0,1]]), co
     colonnes.append("{} /{}".format(int(A[0,1]), int(A[1,1]) ))
     
     return continued_fraction_hj(1/(n-x),long-1, expansion, A, colonnes)
+
+
