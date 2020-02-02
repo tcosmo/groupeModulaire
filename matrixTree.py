@@ -285,9 +285,9 @@ def are_Fricke_equiv(word1,word2):
 ## INVERSE MATRICIEL
 
 def matrix_sl_inverse(mat):
-    a,b = mat[0][0],mat[1][0]
-    c,d = mat[0][1],mat[1][1]
-    return np.array([[d,-c],[-b,a]])
+    a,b = mat[0][0],mat[0][1]
+    c,d = mat[1][0],mat[1][1]
+    return np.array([[d,-b],[-c,a]])
 
 
 ## FORME QUADRATIQUE ET MATRICE
@@ -295,9 +295,9 @@ def matrix_sl_inverse(mat):
 def quadratic_form_of_matrix(matrix):
     if matrix.trace()<0:
         matrix=-matrix
-    l =  matrix[0][1] 
+    l =  matrix[1][0] 
     m =  matrix[1][1]-matrix[0][0]
-    u = -matrix[1][0]
+    u = -matrix[0][1]
     return (l,m,u)
 
 def matrix_of_quadratic_form(quad):
@@ -305,7 +305,7 @@ def matrix_of_quadratic_form(quad):
     t = np.sqrt(m**2-4*l*u+4)
     a, d = (t-m)/2, (t+m)/2
     b, c = -u, l
-    mat = np.array([[a,c],[b,d]])
+    mat = np.array([[a,b],[c,d]])
     return mat
 
 ## DISCRIMINANT ET PRODUIT SCALAIRE DE KILLING DE DEUX FORMES QUADRATIQUES ET RESULTANT
@@ -316,7 +316,7 @@ def discriminant(mat):
 def killing_form(matrix_A,matrix_B):
     #m_A = matrix_of_address(word_a) 
     #m_B = matrix_of_address(word_b)
-    scal = 2*(matrix_A * matrix_B).trace()-matrix_A.trace()*matrix_B.trace()
+    scal = 2* np.matmul(matrix_A, matrix_B).trace()-matrix_A.trace()*matrix_B.trace()
     return scal
 
 def resultant(mat_A,mat_B):
@@ -343,7 +343,7 @@ def continued_fraction(x,long, expansion=[], A = np.matrix([[1,0],[0,1]]), colon
     n=int(np.floor(x))
     expansion.append(n)
     
-    A=A*np.matrix([[n,1],[1,0]])
+    A=np.matmul(A,np.matrix([[n,1],[1,0]]))
     colonnes.append("{} /{}".format(int(A[0,1]), int(A[1,1]) ))
     
     return continued_fraction(1/(x-n),long-1, expansion, A, colonnes)
@@ -358,7 +358,7 @@ def continued_fraction_hj(x,long, expansion=[], A = np.matrix([[1,0],[0,1]]), co
     n=int(np.ceil(x))
     expansion.append(n)
     
-    A=A*np.matrix([[n,-1],[1,0]])
+    A=np.matmul(A,np.matrix([[n,-1],[1,0]]))
     colonnes.append("{} /{}".format(int(A[0,1]), int(A[1,1]) ))
     
     return continued_fraction_hj(1/(n-x),long-1, expansion, A, colonnes)

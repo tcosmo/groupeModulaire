@@ -43,13 +43,11 @@ def occ(P,A):
     # Returns the number of times P appears at the begining of circular shifts of A.
     shifts = mT.list_of_circular_shifts(A)
     counter = 0
-    n = len(P)
- 
-    if n > len(A):
-        return counter
+    n,l = len(P), len(A)
  
     for shift in shifts:
-        if shift[:n] == P:
+        power = shift + shift * (n//l)
+        if power[:n] == P:
             counter += 1
  
     return counter
@@ -59,7 +57,7 @@ def scal_PQ(P,Q,A,B):
  
 def enl(A,B):
     # Returns the enl metric on the words A and B in the L/T alphabet.
-    patterns = linking_patterns(max(len(A),len(B)))
+    patterns = linking_patterns(len(A)+len(B)+1)
     return sum([scal_PQ(P,Q,A,B) for P,Q in patterns])
 
  
@@ -120,6 +118,16 @@ def cross(l1, l2):
                 c = c+1
     return c
 
+def cross_word(w1, w2):
+    """ Same as before with L and T words """
+    c = 0
+    for i in range(len(w1)):
+        for j in range(len(w2)):
+            if ( (w1[i] == 'L') & (w2[j] == 'T') & (orderlex(w1,w2,i+1,j+1) == 1) ):
+                c = c+1
+            if ( (w1[i] == 'T') & (w2[j] == 'L') & (orderlex(w1,w2,i+1,j+1) == 0) ):
+                c = c+1
+    return c
 
 ## On teste l'égalité entre ma formule pour enl et l'algo de Pierre
 
@@ -135,7 +143,7 @@ def bin_list_from_word(word):
             raise ValueError("Not an L & T word")
     return liste
 
-def cross_word(w1,w2):
+def cross_word_p(w1,w2):
 	return cross(bin_list_from_word(w1), bin_list_from_word(w2))
 
 bin_list_from_word('LLTLT')
@@ -147,5 +155,24 @@ for i,rep1 in enumerate(all_reps):
     for j,rep2 in enumerate(all_reps):
         cross, enlac = cross(bin_list_from_word(rep1),bin_list_from_word(rep2)), 2*mT.enl(rep1,rep2)
         print(rep1,rep2,cross, int(enlac), enlac == cross)
+
+"""
+
+# Another (better) test
+
+"""
+k1='LLLLLLLTTLT'
+k2='LLLLLTLLLLT'
+l1 = lk.bin_list_from_word(k1)
+l2 = lk.bin_list_from_word(k2)
+
+height = 4
+root = mT.construct_tree(mT.get_prop_max_height(height))
+words_bound_length = [node.address for node in mT.list_of_nodes_with_prop(root, lambda node : node.get_trace()>2)]
+
+for k0 in words_bound_length:
+    l0 = lk.bin_list_from_word(k0)
+    print(k0, (lk.cross(l0,l1), lk.enl(k0,k1)))#, mT.Rademacher(k0),mT.Rademacher(k1)))
+    #print(k0, (lk.cross(l0,l2), lk.enl(k0,k2)))#, mT.Rademacher(k0),mT.Rademacher(k2)))
 
 """
